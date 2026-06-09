@@ -13,13 +13,13 @@ def save_data(
 
     config = load_data_config()
     raw_dir = Path(config["paths"]["raw_dir"])
+    raw_dir.mkdir(parents=True, exist_ok=True)
 
     split_mapping = {
         "train": "train.csv",
         "validation": "val.csv",
         "test": "test.csv",
     }
-
     for split_name, file_name in split_mapping.items():
 
         df = ds[split_name].to_pandas()
