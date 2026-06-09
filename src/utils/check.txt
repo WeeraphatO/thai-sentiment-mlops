@@ -1,0 +1,63 @@
+Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.
+
+WARNING  huggingface_hub.utils._http — Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.
+
+Traceback (most recent call last):
+
+  File "/home/weeraphatoo/Projects/data-sci/thai-sentiment-mlops/src/smoke_test.py", line 282, in <module>
+
+    main(fast=args.fast)
+
+    ~~~~^^^^^^^^^^^^^^^^
+
+  File "/home/weeraphatoo/Projects/data-sci/thai-sentiment-mlops/src/smoke_test.py", line 247, in main
+
+    tok = AutoTokenizer.from_pretrained(TINY_MODEL, use_fast=True)
+
+  File "/home/weeraphatoo/Projects/data-sci/thai-sentiment-mlops/.venv/lib/python3.14/site-packages/transformers/models/auto/tokenization_auto.py", line 839, in from_pretrained
+
+    return tokenizer_class.from_pretrained(pretrained_model_name_or_path, *inputs, **kwargs)
+
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+  File "/home/weeraphatoo/Projects/data-sci/thai-sentiment-mlops/.venv/lib/python3.14/site-packages/transformers/tokenization_utils_base.py", line 1743, in from_pretrained
+
+    return cls._from_pretrained(
+
+           ~~~~~~~~~~~~~~~~~~~~^
+
+        resolved_vocab_files,
+
+        ^^^^^^^^^^^^^^^^^^^^^
+
+    ...<9 lines>...
+
+        **kwargs,
+
+        ^^^^^^^^^
+
+    )
+
+    ^
+
+  File "/home/weeraphatoo/Projects/data-sci/thai-sentiment-mlops/.venv/lib/python3.14/site-packages/transformers/tokenization_utils_base.py", line 1933, in _from_pretrained
+
+    tokenizer = cls(*init_inputs, **init_kwargs)
+
+  File "/home/weeraphatoo/Projects/data-sci/thai-sentiment-mlops/.venv/lib/python3.14/site-packages/transformers/tokenization_utils_tokenizers.py", line 376, in __init__
+
+    raise ValueError(
+
+    ...<5 lines>...
+
+    )
+
+ValueError: Couldn't instantiate the backend tokenizer from one of: 
+
+(1) a `tokenizers` library serialization file, 
+
+(2) a slow tokenizer instance to convert or 
+
+(3) an equivalent slow tokenizer class to instantiate and convert. 
+
+You need to have sentencepiece or tiktoken installed to convert a slow tokenizer to a fast one.
