@@ -23,7 +23,6 @@ from src.utils.load_config import load_training_config
 
 # ── Helpers ────────────────────────────────────────────────────────────────────
 
-
 def _set_seed(seed: int) -> None:
     random.seed(seed)
     np.random.seed(seed)
@@ -33,7 +32,6 @@ def _set_seed(seed: int) -> None:
 
 
 # ── Tasks ──────────────────────────────────────────────────────────────────────
-
 
 @task(
     name="validate-processed-data",

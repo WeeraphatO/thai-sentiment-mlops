@@ -1,0 +1,8 @@
+.env
+data/raw/
+data/processed/
+__pycache__/
+*.pt
+*.ckpt
+*.egg-info/
+.venv/
