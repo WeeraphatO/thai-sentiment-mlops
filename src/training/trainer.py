@@ -121,10 +121,10 @@ class SentimentTrainer:
         m = self.config["metrics"]
         s = self.config["seed"]
 
-        print("\n=== TRAINING CONFIG TYPES ===")
-        for k, v in t.items():
-            print(f"{k}: {v} ({type(v).__name__})")
-        print("=============================\n")
+        # print("\n=== TRAINING CONFIG TYPES ===")
+        # for k, v in t.items():
+        #     print(f"{k}: {v} ({type(v).__name__})")
+        # print("=============================\n")
         return TrainingArguments(
             output_dir=p["output_dir"],
 
