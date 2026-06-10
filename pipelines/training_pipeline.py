@@ -138,7 +138,7 @@ def register_and_promote(config_path: str) -> str:
     """
     logger = get_run_logger()
 
-    config = load_training_config(config_path)
+    config = load_training_config()
 
     registry = ModelRegistry(
         tracking_uri=os.getenv("MLFLOW_TRACKING_URI", "http://localhost:5000"),
