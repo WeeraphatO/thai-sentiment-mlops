@@ -13,6 +13,7 @@ import numpy as np
 import pandas as pd
 import torch
 from prefect import flow, get_run_logger, task
+from dotenv import load_dotenv
 
 from src.data.dataset import WisesightDataset
 from src.models.classifier import load_model, load_tokenizer
