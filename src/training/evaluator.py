@@ -141,6 +141,14 @@ def log_artifacts_to_mlflow(
         artifact_path="model",
     )
 
+    mlflow.transformers.log_model(
+        transformers_model={
+            "model": trainer.model,
+            "tokenizer": tokenizer,
+        },
+        artifact_path="model",
+    )
+    
     logger.info(
         "Logged model weights from %s",
         best_model_dir,
