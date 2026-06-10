@@ -20,7 +20,7 @@ from src.mlflow.mlflow_registry import ModelRegistry
 from src.training.trainer import SentimentTrainer
 from src.utils.load_config import load_training_config
 
-
+load_dotenv(Path(__file__).resolve().parents[1] / ".env")
 # ── Helpers ────────────────────────────────────────────────────────────────────
 
 def _set_seed(seed: int) -> None:
