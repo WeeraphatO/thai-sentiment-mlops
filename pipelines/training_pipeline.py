@@ -16,7 +16,7 @@ from prefect import flow, get_run_logger, task
 
 from src.data.dataset import WisesightDataset
 from src.models.classifier import load_model, load_tokenizer
-from src.registry.mlflow_registry import ModelRegistry
+from src.mlflow.mlflow_registry import ModelRegistry
 from src.training.trainer import SentimentTrainer
 from src.utils.load_config import load_training_config
 
