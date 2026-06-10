@@ -84,7 +84,7 @@ def run_training(
     """
     logger = get_run_logger()
 
-    config = load_training_config(config_path)
+    config = load_training_config()
     _set_seed(config["seed"]["random_state"])
 
     # ── Load data ─────────────────────────────────────────────────────────────
