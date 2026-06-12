@@ -135,11 +135,9 @@ def log_artifacts_to_mlflow(
     )
 
     mlflow.transformers.log_model(
-        transformers_model={
-            "model": trainer.model,
-            "tokenizer": tokenizer,
-        },
+        transformers_model=trainer.model,
         name="model",
+        tokenizer=tokenizer,
     )
     
     logger.info(
