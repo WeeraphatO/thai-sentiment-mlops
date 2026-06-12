@@ -134,19 +134,12 @@ def log_artifacts_to_mlflow(
         exist_ok=True,
     )
 
-    trainer.save_model(best_model_dir)
-
-    mlflow.log_artifacts(
-        best_model_dir,
-        artifact_path="model",
-    )
-
     mlflow.transformers.log_model(
         transformers_model={
             "model": trainer.model,
             "tokenizer": tokenizer,
         },
-        artifact_path="model",
+        name="model",
     )
     
     logger.info(
