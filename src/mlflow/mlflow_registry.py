@@ -59,21 +59,27 @@ class ModelRegistry:
         return str(result.version)
 
     def transition_to_staging(self, version: str):
-        self.client.set_registered_model_alias(
-            self.model_name,
-            "staging",
-            version,
+        self.client.transition_model_version_stage(
+            name=self.model_name, version=version, stage="Staging"
         )
-        print(f"Model v{version} -> staging")
+        print(f"Model v{version} → Staging")
 
     def promote_to_production(self, version: str):
-        self.client.set_registered_model_alias(
-            self.model_name,
-            "production",
-            version,
+        """Promote version to Production, archive the previous Production model."""
+        # Archive existing Production version
+        prod_versions = self.client.get_latest_versions(
+            self.model_name, stages=["Production"]
         )
+        for v in prod_versions:
+            self.client.transition_model_version_stage(
+                name=self.model_name, version=v.version, stage="Archived"
+            )
+            print(f"Archived previous Production model v{v.version}")
 
-        print(f"Model v{version} -> production")
+        self.client.transition_model_version_stage(
+            name=self.model_name, version=version, stage="Production"
+        )
+        print(f"Model v{version} → Production ✓")
 
     def get_production_model_uri(self) -> str:
         return f"models:/{self.model_name}/Production"
