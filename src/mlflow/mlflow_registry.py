@@ -59,25 +59,38 @@ class ModelRegistry:
         return str(result.version)
 
     def transition_to_staging(self, version: str):
-        self.client.transition_model_version_stage(
-            name=self.model_name, version=version, stage="Staging"
+        all_versions = self.client.search_model_versions(f"name='{self.model_name}'")
+        for v in all_versions:
+            if dict(v.tags).get("stage") == "staging":
+                self.client.delete_model_version_tag(
+                    name=self.model_name, version=v.version, key="stage"
+                )
+
+        self.client.set_model_version_tag(
+            name=self.model_name, version=version, key="stage", value="staging"
         )
         print(f"Model v{version} → Staging")
 
     def promote_to_production(self, version: str):
-        """Promote version to Production, archive the previous Production model."""
-        # Archive existing Production version
-        prod_versions = self.client.get_latest_versions(
-            self.model_name, stages=["Production"]
-        )
-        for v in prod_versions:
-            self.client.transition_model_version_stage(
-                name=self.model_name, version=v.version, stage="Archived"
-            )
-            print(f"Archived previous Production model v{v.version}")
+        all_versions = self.client.search_model_versions(f"name='{self.model_name}'")
 
-        self.client.transition_model_version_stage(
-            name=self.model_name, version=version, stage="Production"
+        for v in all_versions:
+            tags = dict(v.tags)
+            if tags.get("stage") == "production":
+                self.client.delete_model_version_tag(
+                    name=self.model_name, version=v.version, key="stage"
+                )
+                self.client.set_model_version_tag(
+                    name=self.model_name, version=v.version, key="stage", value="archived"
+                )
+                print(f"Archived previous Production model v{v.version}")
+            if v.version == version and tags.get("stage") == "staging":
+                self.client.delete_model_version_tag(
+                    name=self.model_name, version=v.version, key="stage"
+                )
+
+        self.client.set_model_version_tag(
+            name=self.model_name, version=version, key="stage", value="production"
         )
         print(f"Model v{version} → Production ✓")
 
