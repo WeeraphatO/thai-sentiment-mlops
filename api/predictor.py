@@ -38,11 +38,6 @@ class ModelPredictor:
         self.model_version = version
         self.is_ready = True
 
-        print("Model URI:", model_uri)
-        print("Metadata:", self._model.metadata)
-
-        print(f"Loaded {self.model_name} v{version} (production)")
-
     def predict(self, text: str) -> dict:
         if not self.is_ready:
             raise RuntimeError("Model is not loaded")
@@ -54,10 +49,9 @@ class ModelPredictor:
         # MLflow transformers usually returns list[dict]
         if isinstance(result, list):
             result = result[0]
-
         return {
-            "label": result["label"],
-            "confidence": float(result.get("score", result.get("confidence", 0.0))),
+            "label": str(result["label"].iloc[0]),
+            "confidence": float(result["score"].iloc[0]),
         }
 
     def predict_batch(self, texts: list[str]) -> list[dict]:
@@ -69,10 +63,12 @@ class ModelPredictor:
         results = self._model.predict(df)
 
         outputs = []
-        for r in results:
-            outputs.append({
-                "label": r["label"],
-                "confidence": float(r.get("score", r.get("confidence", 0.0))),
-            })
+        for _, row in results.iterrows():
+            outputs.append(
+                {
+                    "label": str(row["label"]),
+                    "confidence": float(row["score"]),
+                }
+            )
 
         return outputs

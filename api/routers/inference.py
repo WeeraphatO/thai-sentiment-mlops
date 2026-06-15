@@ -10,7 +10,9 @@ async def predict(body: PredictRequest, request: Request) -> PredictResponse:
     if not predictor.is_ready:
         raise HTTPException(status_code=503, detail="Model is still loading.")
     result = predictor.predict(body.text)
+    # print(result.columns)
     return PredictResponse(**result)
+    # return 0
 
 @router.post("/predict/batch", response_model=list[PredictResponse])
 async def predict_batch(body: BatchPredictRequest, request: Request) -> list[PredictResponse]:

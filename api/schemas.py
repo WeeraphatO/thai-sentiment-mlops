@@ -33,7 +33,7 @@ class BatchPredictRequest(BaseModel):
 class PredictResponse(BaseModel):
     label: str = Field(..., example="positive")
     confidence: float = Field(..., ge=0.0, le=1.0, example=0.97)
-    probabilities: dict[str, float] = Field(
-        ...,
-        example={"positive": 0.97, "neutral": 0.02, "negative": 0.01},
-    )
+    # probabilities: dict[str, float] = Field(
+    #     ...,
+    #     example={"positive": 0.97, "neutral": 0.02, "negative": 0.01},
+    # )
