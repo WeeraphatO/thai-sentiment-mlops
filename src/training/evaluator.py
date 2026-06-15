@@ -13,7 +13,7 @@ from sklearn.metrics import (
     confusion_matrix,
     f1_score,
 )
-from transformers import PreTrainedTokenizerBase, Trainer
+from transformers import PreTrainedTokenizerBase, Trainer, pipeline
 
 logger = logging.getLogger(__name__)
 
@@ -100,73 +100,31 @@ def log_artifacts_to_mlflow(
     test_labels: list[int],
     test_preds: np.ndarray,
     label_names: list[str],
-    best_model_dir: str,
     output_dir: str,
 ) -> None:
-    fig = plot_confusion_matrix(
-        test_labels,
-        test_preds,
-        label_names,
-    )
 
+    fig = plot_confusion_matrix(test_labels, test_preds, label_names)
     mlflow.log_figure(fig, "confusion_matrix.png")
     plt.close(fig)
-
-    logger.info("Logged confusion_matrix.png")
 
     report = classification_report(
         test_labels,
         test_preds,
-        labels=[0, 1, 2, 3],
         target_names=label_names,
         zero_division=0,
     )
 
-    mlflow.log_text(
-        report,
-        "classification_report.txt",
-    )
+    mlflow.log_text(report, "classification_report.txt")
 
-    logger.info("Logged classification_report.txt")
-
-    Path(best_model_dir).mkdir(
-        parents=True,
-        exist_ok=True,
+    clf_pipeline = pipeline(
+        task="text-classification",
+        model=trainer.model,
+        tokenizer=tokenizer,
     )
 
     mlflow.transformers.log_model(
-        transformers_model={
-            "model": trainer.model,
-            "tokenizer": tokenizer,
-        },
-        task="text-classification",
+        transformers_model=clf_pipeline,
         name="model",
     )
-    
-    logger.info(
-        "Logged model weights from %s",
-        best_model_dir,
-    )
 
-    tokenizer_dir = str(
-        Path(output_dir) / "tokenizer"
-    )
-
-    Path(tokenizer_dir).mkdir(
-        parents=True,
-        exist_ok=True,
-    )
-
-    tokenizer.save_pretrained(
-        tokenizer_dir
-    )
-
-    mlflow.log_artifacts(
-        tokenizer_dir,
-        artifact_path="tokenizer",
-    )
-
-    logger.info(
-        "Logged tokenizer from %s",
-        tokenizer_dir,
-    )
+    logger.info("Logged MLflow model + artifacts")

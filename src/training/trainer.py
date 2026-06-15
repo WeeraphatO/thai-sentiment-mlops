@@ -106,7 +106,6 @@ class SentimentTrainer:
                 test_labels=test_labels,
                 test_preds=test_preds,
                 label_names=LABEL_NAMES,
-                best_model_dir=self.config["paths"]["best_model_dir"],
                 output_dir=self.config["paths"]["output_dir"],
             )
 
