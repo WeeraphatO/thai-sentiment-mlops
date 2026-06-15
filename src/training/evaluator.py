@@ -139,6 +139,7 @@ def log_artifacts_to_mlflow(
             "model": trainer.model,
             "tokenizer": tokenizer,
         },
+        task="text-classification",
         name="model",
     )
     

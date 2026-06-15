@@ -3,46 +3,92 @@ from __future__ import annotations
 import logging
 import os
 from contextlib import asynccontextmanager
+from pathlib import Path
 
+from dotenv import load_dotenv
 from fastapi import FastAPI
 
-from api.middleware.logging import LoggingMiddleware
-from api.routers import health, predict
-from src.serving.predictor import SentimentPredictor
+from api.predictor import ModelPredictor
+from api.routers.health import router as health_router
+from api.routers.inference import router as inference_router
 from src.utils.load_config import load_training_config
 
-logging.basicConfig(
-    level=logging.INFO,
-    format="%(asctime)s  %(levelname)-8s  %(name)s — %(message)s",
-    datefmt="%Y-%m-%d %H:%M:%S",
-)
+# ------------------------------------------------------------------
+# Environment
+# ------------------------------------------------------------------
+
+BASE_DIR = Path(__file__).resolve().parents[1]
+load_dotenv(BASE_DIR / ".env")
+
 logger = logging.getLogger(__name__)
-predictor = SentimentPredictor()
+
+# ------------------------------------------------------------------
+# Predictor Factory
+# ------------------------------------------------------------------
+
+
+def create_predictor() -> ModelPredictor:
+    config = load_training_config()
+
+    return ModelPredictor(
+        model_name=config["mlflow"]["model_name"],
+        tracking_uri=os.getenv(
+            "MLFLOW_TRACKING_URI",
+            "http://localhost:5000",
+        )
+    )
+
+
+# ------------------------------------------------------------------
+# FastAPI Lifespan
+# ------------------------------------------------------------------
 
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    config = load_training_config(
-        os.getenv("CONFIG_PATH", "configs/train.yaml")
+    logger.info("Starting API...")
+
+    predictor = create_predictor()
+
+    predictor.load()
+
+    # Optional: wait until model is loaded
+    timeout_seconds = 120
+
+    import time
+
+    start = time.time()
+
+    while not predictor.is_ready:
+        if time.time() - start > timeout_seconds:
+            raise RuntimeError(
+                "Timed out while loading MLflow model."
+            )
+
+        time.sleep(1)
+
+    logger.info(
+        "Loaded model '%s' version '%s'",
+        predictor.model_name,
+        predictor.model_version,
     )
-    model_name = config["mlflow"]["model_name"]
-    logger.info("Loading model '%s' from MLflow registry...", model_name)
-    predictor.load_from_registry(model_name=model_name, stage="Production")
+
     app.state.predictor = predictor
-    logger.info("API ready.")
+
     yield
-    logger.info("Shutting down.")
+
+    logger.info("Shutting down API...")
+
+
+# ------------------------------------------------------------------
+# Application
+# ------------------------------------------------------------------
 
 app = FastAPI(
-    title="Thai Sentiment Analysis API",
-    description=(
-        "Real-time sentiment classification for Thai text using PhayaThaiBERT. "
-        "Labels: neg · neu · pos · q"
-    ),
+    title="Thai Sentiment API",
     version="1.0.0",
     lifespan=lifespan,
 )
 
-app.add_middleware(LoggingMiddleware)
-app.include_router(health.router)
-app.include_router(predict.router, prefix="/api/v1")
+app.include_router(health_router)
+app.include_router(inference_router)
