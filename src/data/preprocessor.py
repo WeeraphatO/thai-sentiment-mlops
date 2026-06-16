@@ -9,9 +9,9 @@ from src.data.loader import load_wisesight_dataset
 
 
 LABEL_MAP = {
-    0: "neg",
+    0: "pos",
     1: "neu",
-    2: "pos",
+    2: "neg",
     3: "q",
 }
 
