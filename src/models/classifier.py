@@ -13,8 +13,8 @@ MODEL_NAME = config["model"]["name"]
 NUM_LABELS: int = config["model"]["num_labels"]
 
 LABEL_NAMES: list[str] = ["neg", "neu", "pos", "q"]
-LABEL2ID: dict[str, int] = {l: i for i, l in enumerate(LABEL_NAMES)}
-ID2LABEL: dict[int, str] = {i: l for i, l in enumerate(LABEL_NAMES)}
+LABEL2ID: dict[str, int] = {label: i for i, label in enumerate(LABEL_NAMES)}
+ID2LABEL: dict[int, str] = {i: label for i, label in enumerate(LABEL_NAMES)}
 
 
 def load_tokenizer() -> PreTrainedTokenizerBase:

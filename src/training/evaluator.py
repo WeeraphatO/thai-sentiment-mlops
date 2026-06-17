@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 import logging
-from pathlib import Path
 
 import matplotlib.pyplot as plt
 import mlflow
@@ -110,6 +109,7 @@ def log_artifacts_to_mlflow(
     report = classification_report(
         test_labels,
         test_preds,
+        labels=list(range(len(label_names))),
         target_names=label_names,
         zero_division=0,
     )

@@ -1,7 +1,5 @@
 from datasets import load_dataset, DatasetDict
-import pandas as pd
 from pathlib import Path
-import yaml
 from src.utils.load_config import load_data_config
 
 def load_wisesight_dataset() -> DatasetDict:

@@ -14,7 +14,7 @@ from dotenv import load_dotenv
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
 from src.data.dataset import WisesightDataset
-from src.models.classifier import LABEL_NAMES, load_model, load_tokenizer
+from src.models.classifier import load_model, load_tokenizer
 from src.training.trainer import SentimentTrainer
 from src.utils.load_config import load_training_config
 

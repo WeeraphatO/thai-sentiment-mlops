@@ -21,14 +21,13 @@ only the model name changes.
 
 Usage
 -----
-    python scripts/smoke_test.py          # run all checks
-    python scripts/smoke_test.py --fast   # skip artifact logging
+    python scripts/smoke_test.py
 """
 
 from __future__ import annotations
 
-import argparse
 import logging
+import os
 import sys
 import tempfile
 import traceback
@@ -36,6 +35,13 @@ from pathlib import Path
 
 import numpy as np
 import pandas as pd
+
+# Force MLflow to a throwaway local store BEFORE any src.* import runs.
+# Some modules call load_dotenv() at import time, which would otherwise pull
+# a real MLFLOW_TRACKING_URI from .env. load_dotenv() defaults to
+# override=False, so setting this first makes it win regardless of .env.
+_SMOKE_MLRUNS_DIR = tempfile.mkdtemp(prefix="smoke_test_mlruns_")
+os.environ["MLFLOW_TRACKING_URI"] = f"file:{_SMOKE_MLRUNS_DIR}"
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
@@ -45,10 +51,9 @@ logging.basicConfig(
 )
 logger = logging.getLogger("smoke_test")
 
-# ── Tiny public model (4 MB, downloads in seconds) ────────────────────────────
 TINY_MODEL = "google/bert_uncased_L-2_H-128_A-2"
 
-# ── Synthetic data — 16 Thai-ish samples covering all 4 labels ────────────────
+# Synthetic data — 16 Thai-ish samples covering all 4 labels
 _TEXTS = [
     "อาหารอร่อยมากเลยครับ",
     "ประทับใจบริการมากค่ะ",
@@ -79,8 +84,8 @@ def _make_df(indices: list[int]) -> pd.DataFrame:
     })
 
 
-# ── Smoke config — overrides everything in train.yaml ─────────────────────────
 def _make_config(output_dir: str, best_model_dir: str) -> dict:
+    """Smoke config — overrides everything in train.yaml."""
     return {
         "model": {
             "name":       TINY_MODEL,
@@ -106,7 +111,7 @@ def _make_config(output_dir: str, best_model_dir: str) -> dict:
     }
 
 
-# ── Individual checks ──────────────────────────────────────────────────────────
+# ── Individual checks ─────────────────────────────────────────────────────
 
 def check_imports() -> None:
     """Verify every project module is importable."""
@@ -155,7 +160,6 @@ def check_compute_metrics() -> None:
 
 def check_config_validation() -> None:
     """SentimentTrainer._validate_config raises on missing keys."""
-    import pytest
     from src.training.trainer import SentimentTrainer
 
     bad_config = {"model": {"name": "x"}}   # missing everything else
@@ -166,7 +170,7 @@ def check_config_validation() -> None:
         pass   # correct behaviour
 
 
-def check_full_training(fast: bool, tmpdir: str) -> tuple[str, dict]:
+def check_full_training(tmpdir: str) -> tuple[str, dict]:
     """End-to-end: train() runs and returns a valid run_id + metrics dict."""
     from transformers import AutoModelForSequenceClassification, AutoTokenizer
 
@@ -211,7 +215,7 @@ def check_full_training(fast: bool, tmpdir: str) -> tuple[str, dict]:
     return run_id, results
 
 
-# ── Runner ─────────────────────────────────────────────────────────────────────
+# ── Runner ───────────────────────────────────────────────────────────────
 
 def run_check(label: str, fn, *args, **kwargs) -> bool:
     """Run a single check and print pass/fail."""
@@ -226,7 +230,7 @@ def run_check(label: str, fn, *args, **kwargs) -> bool:
         return False
 
 
-def main(fast: bool = False) -> None:
+def main() -> None:
     print()
     print("=" * 60)
     print("  Smoke test — Thai Sentiment MLOps pipeline")
@@ -236,12 +240,10 @@ def main(fast: bool = False) -> None:
 
     results: list[bool] = []
 
-    # [1] Imports
     print("Phase 1  imports")
     results.append(run_check("[1] all project modules importable", check_imports))
     print()
 
-    # [2] Dataset + metrics (no model download yet)
     print("Phase 2  data & metrics")
     from transformers import AutoTokenizer
     tok = AutoTokenizer.from_pretrained(TINY_MODEL, use_fast=False)
@@ -250,14 +252,12 @@ def main(fast: bool = False) -> None:
     results.append(run_check("[4] config validation raises on bad input", check_config_validation))
     print()
 
-    # [3] Full training loop
     print("Phase 3  training loop  (downloads bert-tiny ~4 MB on first run)")
     with tempfile.TemporaryDirectory() as tmpdir:
-        ok = run_check("[5] trainer.train() end-to-end", check_full_training, fast, tmpdir)
+        ok = run_check("[5] trainer.train() end-to-end", check_full_training, tmpdir)
         results.append(ok)
     print()
 
-    # Summary
     passed = sum(results)
     total  = len(results)
     print("=" * 60)
@@ -276,7 +276,4 @@ def main(fast: bool = False) -> None:
 
 
 if __name__ == "__main__":
-    parser = argparse.ArgumentParser(description="Smoke test for the training pipeline.")
-    parser.add_argument("--fast", action="store_true", help="Skip artifact logging check.")
-    args = parser.parse_args()
-    main(fast=args.fast)
+    main()
