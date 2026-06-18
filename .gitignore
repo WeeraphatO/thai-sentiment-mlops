@@ -1,0 +1,11 @@
+.env
+data/raw/
+data/processed/
+__pycache__/
+*.py[cod]
+*.pt
+*.ckpt
+*.egg-info/
+.venv/
+.ruff_cache
+mlflow.db

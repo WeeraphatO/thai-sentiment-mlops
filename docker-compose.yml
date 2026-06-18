@@ -1,0 +1,31 @@
+services:
+  api:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile.api
+
+    container_name: thai-sentiment-api
+
+    env_file:
+      - .env
+
+    environment:
+      - CONFIG_PATH=configs/train.yaml
+
+    ports:
+      - "8000:8000"
+
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 120s
+
+    restart: unless-stopped
+
+    volumes:
+      - huggingface-cache:/root/.cache/huggingface
+
+volumes:
+  huggingface-cache:

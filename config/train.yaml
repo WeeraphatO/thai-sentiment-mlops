@@ -1,0 +1,30 @@
+model:
+  name: "clicknext/phayathaibert"
+  num_labels: 4
+  max_length: 256
+
+training:
+  batch_size: 16
+  eval_batch_size: 32
+  learning_rate: 0.00002
+  epochs: 5
+  weight_decay: 0.01
+  warmup_ratio: 0.1
+
+early_stopping:
+  patience: 2
+
+paths:
+  output_dir: "artifacts/model"
+  best_model_dir: "artifacts/best_model"
+
+mlflow:
+  experiment_name: "thai_sentiment_phayathaibert"
+  model_name: "thai-sentiment-phayathaibert"
+
+metrics:
+  best_metric: "f1_macro"
+  greater_is_better: true
+
+seed:
+  random_state: 42

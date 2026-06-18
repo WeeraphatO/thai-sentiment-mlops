@@ -1,0 +1,50 @@
+# Git
+.git
+.github
+.gitignore
+
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+
+# Virtual environments
+.venv/
+venv/
+env/
+
+# Tests
+tests/
+
+# Local data
+data/
+
+# Logs
+logs/
+*.log
+
+# Environment variables
+.env
+
+# VSCode / IDE
+.vscode/
+.idea/
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Notebook development
+notebooks/
+
+# Build artifacts
+dist/
+build/
+*.egg-info/
+
+# Docker
+docker/
